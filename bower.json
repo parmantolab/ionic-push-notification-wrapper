@@ -7,7 +7,7 @@
       "email": "Toz7@pitt.edu"
     }
   ],
-  "main": ["./dist/push-module.js"],
+  "main": "./dist/push-module.js",
   "ignore": [
     "src",
     "test",
