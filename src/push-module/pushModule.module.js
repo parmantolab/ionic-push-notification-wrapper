@@ -1,4 +1,4 @@
-angular.module('pushModule', ['ionic', 'saveTokenModule'])
+angular.module('pushModule', ['ionic'])
     .provider('PushService', function() {
         var self = this;
 
@@ -30,7 +30,10 @@ angular.module('pushModule', ['ionic', 'saveTokenModule'])
             self.parameters = angular.merge(self.parameters, parameters);
         };
 
-        this.$get = function($ionicPlatform, $ionicPopup, saveTokenService, $rootScope) {
+        this.$get = pushService;
+        pushService.$inject = ['$ionicPlatform', '$ionicPopup', '$rootScope'];
+
+        function pushService($ionicPlatform, $ionicPopup, $rootScope) {
             $ionicPlatform.ready(function() {
                 // After the platform is ready and our plugins are available
                 //Intialize push service
@@ -62,58 +65,15 @@ angular.module('pushModule', ['ionic', 'saveTokenModule'])
                     if (oldRegId !== data.registrationId) {
                         // Save new registrationID to localstorage
                         window.localStorage.setItem('registrationId', data.registrationId);
-                        //If Id changed, save new registerationID to the server
-                        saveTokenService.register(data.registrationId);
+                        //If Id changed, broadcast the new registerationID to the app
+                        $rootScope.$broadcast('onChangeRegistrationId', data.registrationId);
                     }
                     console.log(window.localStorage.getItem('registrationId'));
                 });
 
                 push.on('notification', function(data) {
                     //Broadcast the notification here
-                    $rootScope.$broadcast('New Medicine', data.message);
-
-                    //Define the callback function when app is open in the foreground
-                    if (data.additionalData.foreground) {
-                        /**
-                         * This block is reached when a push notification is received when the app is in foreground.
-                         */
-                        $ionicPopup.show({
-                            title: 'Foreground Notification',
-                            template: data.message,
-                            buttons: [{
-                                text: 'Ignore',
-                                role: 'cancel'
-                            }, {
-                                text: 'View',
-                                onTap: function() {
-                                    //define function when the user click "view"
-                                    console.log('View the detail');
-                                }
-                            }]
-                        });
-                    } else {
-                        //Define the callback function for user clicking on push notification directly
-                        //when a push notification is tapped on *AND* the app is in background
-                        var pastPushSavedID = window.localStorage.getItem('pastPushSavedID');
-
-                        if (data.additionalData.notId !== pastPushSavedID) {
-                            window.localStorage.setItem('pastPushSavedID', data.additionalData.notId);
-                            $ionicPopup.show({
-                                title: 'Background Notification',
-                                template: data.message,
-                                buttons: [{
-                                    text: 'Ignore',
-                                    role: 'cancel'
-                                }, {
-                                    text: 'View',
-                                    onTap: function() {
-                                        //define function when the user click "view"
-                                        console.log('View the detail');
-                                    }
-                                }]
-                            });
-                        }
-                    }
+                    $rootScope.$broadcast('onPushNotification', data.additionalData.data, data);
 
                     // Call finish function to let the  OSknow the notification is done
                     push.finish(function() {
@@ -132,13 +92,5 @@ angular.module('pushModule', ['ionic', 'saveTokenModule'])
                     window.alert('Accept Triggred');
                 };
             });
-        };
-    })
-
-.controller('pushController', ['$scope', function($scope) {
-    $scope.$on('New Medicine', function(event, data) {
-        //add a div in index.html to print the data
-        $scope.test = data;
-        console.log('Brocast New Message', data);
+        }
     });
-}]);
