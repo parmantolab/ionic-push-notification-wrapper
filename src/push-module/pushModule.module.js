@@ -3,58 +3,35 @@ angular.module('pushModule', ['ionic'])
         var self = this;
 
         //Set the default values of parameters
-        this.parameters = {
-            senderID: '',
-            iosAlert: true,
-            iosBadge: true,
-            iosSound: true,
-            iosCategories: {
-                'invite': {
-                    'yes': {
-                        'callback': window.accept,
-                        'title': 'Accept',
-                        'foreground': true,
-                        'destructive': false
-                    },
-                    'no': {
-                        'callback': window.reject,
-                        'title': 'Reject',
-                        'foreground': false,
-                        'destructive': false
-                    }
-                }
+        var options = {
+            android: {
+                //senderId of your project on FCM
+                senderID: null,                
+            },
+            ios: {
+                //senderId of your project on FCM
+                senderID: null,
+                gcmSandbox: false,
+
+                //Whether you allow alert, badge/ alert/ sound
+                alert: true,
+                badge: true,
+                sound: true                
             }
         };
 
-        this.setParameters = function(parameters) {
-            self.parameters = angular.merge(self.parameters, parameters);
-        };
+        this.config = function(config) {
+            angular.merge(options, config);
+        }
 
         this.$get = pushService;
-        pushService.$inject = ['$ionicPlatform', '$ionicPopup', '$rootScope'];
+        pushService.$inject = ['$ionicPlatform', '$rootScope'];
 
-        function pushService($ionicPlatform, $ionicPopup, $rootScope) {
+        function pushService($ionicPlatform, $rootScope) {
             $ionicPlatform.ready(function() {
                 // After the platform is ready and our plugins are available
                 //Intialize push service
-                var push = PushNotification.init({
-                    android: {
-                        //senderId of your project on FCM
-                        senderID: self.parameters.senderID
-                    },
-                    ios: {
-                        //senderId of your project on FCM
-                        senderID: self.parameters.senderID,
-                        //Whether you allow alert, badge/ alert/ sound
-                        alert: self.parameters.iosAlert,
-                        badge: self.parameters.iosBadge,
-                        sound: self.parameters.iosSound,
-                        gcmSandbox: 'true',
-                        //Define the buttons of notification:
-                        categories: self.parameters.iosCategories
-                    },
-                    windows: {}
-                });
+                var push = PushNotification.init(options);
 
                 push.on('registration', function(data) {
                     //Get the old RegistrationID of this device
@@ -65,9 +42,11 @@ angular.module('pushModule', ['ionic'])
                     if (oldRegId !== data.registrationId) {
                         // Save new registrationID to localstorage
                         window.localStorage.setItem('registrationId', data.registrationId);
+
                         //If Id changed, broadcast the new registerationID to the app
                         $rootScope.$broadcast('onChangeRegistrationId', data.registrationId);
                     }
+
                     console.log(window.localStorage.getItem('registrationId'));
                 });
 
@@ -79,18 +58,9 @@ angular.module('pushModule', ['ionic'])
                     push.finish(function() {
                         console.log('processing of push data is finished');
                     }, function() {
-                        console.log('something went wrong with push.finish for ID = ' + data.additionalData.notId);
-                    }, data.additionalData.notId);
+                        console.log('something went wrong with push.finish for ID = ' + data.additionalData.id);
+                    }, data.additionalData.id);
                 });
-
-                //Define the callback function of action buttons here.
-                window.reject = function(data) {
-                    window.alert('Reject Triggred');
-                };
-
-                window.accept = function(data) {
-                    window.alert('Accept Triggred');
-                };
             });
         }
     });
