@@ -89,8 +89,8 @@ angular.module('pushModule', ['ionic'])
                 push.finish(function() {
                     console.log('processing of push data is finished');
                 }, function() {
-                    console.log('something went wrong with push.finish for ID = ' + data.additionalData.id);
-                }, data.additionalData.id);
+                    console.log('something went wrong with push.finish for ID = ' + data.additionalData.notId);
+                }, data.additionalData.notId);
             }
         }
     });
