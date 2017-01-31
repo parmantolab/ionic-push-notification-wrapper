@@ -1,0 +1,56 @@
+iOS
+onPushNotification
+app running background
+    additionalData: Object
+        coldstart: false
+        foreground: false
+        gcm.message_id: "0:1485806407489599%7277d8f47277d8f4"
+        gcm.n.e: "1"
+        gcm.notification.sound2: "default"
+        google.c.a.c_id: "4639076936496868830"
+        google.c.a.c_l: "nickname"
+        google.c.a.e: "1"
+        google.c.a.ts: "1485806407"
+        google.c.a.udt: "0"
+        Object Prototype
+    message: "messageq"
+    sound: "default"
+
+
+onPushNotification
+app does not running
+    additionalData: Object
+        coldstart: true
+        data: "{refId: 99}"
+        foreground: false
+        gcm.message_id: "0:1485811480347913%7277d8f47277d8f4"
+        gcm.n.e: "1"
+        gcm.notification.sound2: "default"
+        google.c.a.c_id: "1636417619008513544"
+        google.c.a.c_l: "Message label"
+        google.c.a.e: "1"
+        google.c.a.ts: "1485811480"
+        google.c.a.udt: "0"
+        Object Prototype
+    message: "Message text"
+    sound: "default"
+    title: "Notification title"
+
+onPushNotification
+app running foreground
+    additionalData: Object
+        coldstart: false
+        data: "{refId: 99}"
+        foreground: true
+        gcm.message_id: "0:1485812077001084%7277d8f47277d8f4"
+        gcm.n.e: "1"
+        gcm.notification.sound2: "default"
+        google.c.a.c_id: "7663880851531614597"
+        google.c.a.c_l: "Message label"
+        google.c.a.e: "1"
+        google.c.a.ts: "1485812077"
+        google.c.a.udt: "0"
+        Object Prototype
+    message: "Message text"
+    sound: "default"
+    title: "Notification title"
