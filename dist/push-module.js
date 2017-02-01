@@ -11,6 +11,9 @@ angular.module('pushModule', ['ionic'])
             ios: {
                 //senderId of your project on FCM
                 senderID: null,
+
+                //gcmSandbox false + production certificate 
+                //gcmSandbox true + development certificate
                 gcmSandbox: false,
 
                 //Whether you allow alert, badge/ alert/ sound
@@ -29,7 +32,7 @@ angular.module('pushModule', ['ionic'])
 
         function pushService($ionicPlatform, $rootScope) {
             var service = {};
-
+            
             service.push = null;
             service.register = _register;
             service.unregister = _unregister;
@@ -86,7 +89,7 @@ angular.module('pushModule', ['ionic'])
                 $rootScope.$broadcast('onPushNotification', data.additionalData.data, data);
 
                 // Call finish function to let the  OSknow the notification is done
-                push.finish(function() {
+                service.push.finish(function() {
                     console.log('processing of push data is finished');
                 }, function() {
                     console.log('something went wrong with push.finish for ID = ' + data.additionalData.notId);
