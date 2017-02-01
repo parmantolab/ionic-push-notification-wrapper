@@ -28,39 +28,69 @@ angular.module('pushModule', ['ionic'])
         pushService.$inject = ['$ionicPlatform', '$rootScope'];
 
         function pushService($ionicPlatform, $rootScope) {
-            $ionicPlatform.ready(function() {
-                // After the platform is ready and our plugins are available
-                //Intialize push service
-                var push = PushNotification.init(options);
+            var service = {};
 
-                push.on('registration', function(data) {
-                    //Get the old RegistrationID of this device
-                    var oldRegId = window.localStorage.getItem('registrationId');
+            service.push = null;
+            service.register = _register;
+            service.unregister = _unregister;
 
-                    //Check whether this is a new device or
-                    //the RegisterationId of this device changed because reinstalling
-                    if (oldRegId !== data.registrationId) {
-                        // Save new registrationID to localstorage
-                        window.localStorage.setItem('registrationId', data.registrationId);
+            return service;
+            ////////////////////////
+            function _pluginReady() {                
+                var status = window.PushNotification ? true : false;
+                if (!status) {
+                    console.error('PushNotification is not ready.');
+                }
 
-                        //If Id changed, broadcast the new registerationID to the app
-                        $rootScope.$broadcast('onChangeRegistrationId', data.registrationId);
-                    }
+                return status;
+            }
+            function _register() {
+                if (!_pluginReady()) return;
 
-                    console.log(window.localStorage.getItem('registrationId'));
-                });
+                this.push = PushNotification.init(options);
+                this.push.on('registration', _onRegistration);
+                this.push.on('notification', _onNotification);
+            }
 
-                push.on('notification', function(data) {
-                    //Broadcast the notification here
-                    $rootScope.$broadcast('onPushNotification', data.additionalData.data, data);
+            function _unregister() {
+                if (this.push) {
+                    this.push.unregister(cbSuccess, cbFail, []);
+                }
 
-                    // Call finish function to let the  OSknow the notification is done
-                    push.finish(function() {
-                        console.log('processing of push data is finished');
-                    }, function() {
-                        console.log('something went wrong with push.finish for ID = ' + data.additionalData.id);
-                    }, data.additionalData.id);
-                });
-            });
+                //////
+                function cbSuccess() {
+                    this.push = null;
+                }
+                function cbFail() {}
+            }
+
+            function _onRegistration(data) {
+                //Get the old RegistrationID of this device
+                var oldRegId = window.localStorage.getItem('registrationId');
+
+                //Check whether this is a new device or
+                //the RegisterationId of this device changed because reinstalling
+                if (oldRegId !== data.registrationId) {
+                    // Save new registrationID to localstorage
+                    window.localStorage.setItem('registrationId', data.registrationId);
+
+                    //If Id changed, broadcast the new registerationID to the app
+                    $rootScope.$broadcast('onChangeRegistrationId', data.registrationId);
+                }
+
+                console.log("local" + window.localStorage.getItem('registrationId'));
+            }
+
+            function _onNotification(data) {
+                //Broadcast the notification here
+                $rootScope.$broadcast('onPushNotification', data.additionalData.data, data);
+
+                // Call finish function to let the  OSknow the notification is done
+                push.finish(function() {
+                    console.log('processing of push data is finished');
+                }, function() {
+                    console.log('something went wrong with push.finish for ID = ' + data.additionalData.notId);
+                }, data.additionalData.notId);
+            }
         }
     });
