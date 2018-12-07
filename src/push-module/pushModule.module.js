@@ -6,20 +6,20 @@ angular.module('pushModule', ['ionic'])
         var options = {
             android: {
                 //senderId of your project on FCM
-                senderID: null,                
+                senderID: null,
             },
             ios: {
                 //senderId of your project on FCM
                 senderID: null,
 
-                //gcmSandbox false + production certificate 
+                //gcmSandbox false + production certificate
                 //gcmSandbox true + development certificate
                 gcmSandbox: false,
 
                 //Whether you allow alert, badge/ alert/ sound
                 alert: true,
                 badge: true,
-                sound: true                
+                sound: true
             }
         };
 
@@ -32,14 +32,14 @@ angular.module('pushModule', ['ionic'])
 
         function pushService($ionicPlatform, $rootScope) {
             var service = {};
-            
+
             service.push = null;
             service.register = _register;
             service.unregister = _unregister;
 
             return service;
             ////////////////////////
-            function _pluginReady() {                
+            function _pluginReady() {
                 var status = window.PushNotification ? true : false;
                 if (!status) {
                     console.error('PushNotification is not ready.');
@@ -86,7 +86,7 @@ angular.module('pushModule', ['ionic'])
 
             function _onNotification(data) {
                 //Broadcast the notification here
-                $rootScope.$broadcast('onPushNotification', data.additionalData.data, data);
+                $rootScope.$broadcast('onPushNotification', data.additionalData.payload, data);
 
                 // Call finish function to let the  OSknow the notification is done
                 service.push.finish(function() {
